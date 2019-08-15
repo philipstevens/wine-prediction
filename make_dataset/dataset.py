@@ -1,9 +1,11 @@
 import click
 import dask.dataframe as dd
 import numpy as np
+import pandas as pd 
 from distributed import Client
 from pathlib import Path
-
+from sklearn.model_selection import train_test_split
+from scipy.sparse import hstack
 
 def _save_datasets(train, test, outdir: Path):
     """Save data sets into nice directory structure and write SUCCESS flag."""
@@ -24,29 +26,38 @@ def make_datasets(in_csv, out_dir):
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Connect to the dask cluster
-    c = Client('dask-scheduler:8786')
+    init_data = pd.read_csv(in_csv, index_col= 0)
 
-    # load data as a dask Dataframe if you have trouble with dask
-    # please fall back to pandas or numpy
-    ddf = dd.read_csv(in_csv, blocksize=1e6)
+    selected_data = init_data[['country', 'description', 'points', 'price', 
+        'province', 'title', 'variety','winery']]
 
-    # we set the index so we can properly execute loc below
-    ddf = ddf.set_index('Unnamed: 0')
+    cat_features = [
+        'country',
+        'province',
+        'variety',
+        'winery',
+    ]
 
-    # trigger computation
-    n_samples = len(ddf)
+    num_features = [
+        'price',
+        'description_length'
+    ]
 
-    # TODO: implement proper dataset creation here
-    # http://docs.dask.org/en/latest/dataframe-api.html
+    labels = ['points']
 
-    # split dataset into train test feel free to adjust test percentage
-    idx = np.arange(n_samples)
-    test_idx = idx[:n_samples // 10]
-    test = ddf.loc[test_idx]
+    deduped_data = selected_data[~selected_data.duplicated()]
 
-    train_idx = idx[n_samples // 10:]
-    train = ddf.loc[train_idx]
+    data = deduped_data.dropna()
+
+    X = data[num_features]
+    y = data[labels]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.1, random_state=101
+    )
+
+    train = hstack([X_train, y_train])
+    test = hstack([X_test, y_test])
 
     _save_datasets(train, test, out_dir)
 

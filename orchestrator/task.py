@@ -14,7 +14,7 @@ class Debug(DockerTask):
 
     @property
     def image(self):
-        return 'code-challenge/download-data:0.1'
+        return 'code-challenge/make-dataset:0.1'
 
     @property
     def command(self):
@@ -57,7 +57,7 @@ class DownloadData(DockerTask):
 
 class MakeDatasets(DockerTask):
 
-    out_dir = luigi.Parameter()
+    out_dir = luigi.Parameter(default='/usr/share/data/processed/')
 
     @property
     def image(self):
@@ -68,9 +68,11 @@ class MakeDatasets(DockerTask):
 
     @property
     def command(self):
-        # TODO: implement correct command
-        # Try to get the input path from self.requires() ;)
-        pass
+        return [
+            'python', 'dataset.py',
+            '--in-csv', self.input().path,
+            '--out-dir', self.out_dir,
+        ]
 
     def output(self):
         return luigi.LocalTarget(

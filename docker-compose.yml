@@ -40,4 +40,4 @@ services:
     build:
       context: ./orchestrator
     # TODO: Replace with EvaluateModel task
-    command: luigi --module task DownloadData --scheduler-host luigid
+    command: luigi --module task MakeDatasets --scheduler-host luigid
