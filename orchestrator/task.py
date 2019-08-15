@@ -78,3 +78,27 @@ class MakeDatasets(DockerTask):
         return luigi.LocalTarget(
             path=str(Path(self.out_dir) / '.SUCCESS')
         )
+
+class TrainModel(DockerTask):
+
+    out_dir = luigi.Parameter(default='/usr/share/data/model/')
+
+    @property
+    def image(self):
+        return f'code-challenge/train-model:{VERSION}'
+
+    def requires(self):
+        return MakeDatasets()
+
+    @property
+    def command(self):
+        return [
+            'python', 'dataset.py',
+            '--in-data', self.input().path,
+            '--out-dir', self.out_dir,
+        ]
+
+    def output(self):
+        return luigi.LocalTarget(
+            path=str(Path(self.out_dir) / '.SUCCESS')
+        )

@@ -5,16 +5,15 @@ import pandas as pd
 from distributed import Client
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-from scipy.sparse import hstack
 
 def _save_datasets(train, test, outdir: Path):
     """Save data sets into nice directory structure and write SUCCESS flag."""
-    out_train = outdir / 'train.parquet/'
-    out_test = outdir / 'test.parquet/'
+    out_train = outdir / 'train.parquet.gzip/'
+    out_test = outdir / 'test.parquet.gzip/'
     flag = outdir / '.SUCCESS'
 
-    train.to_parquet(str(out_train))
-    test.to_parquet(str(out_test))
+    train.to_parquet(str(out_train), compression='gzip')
+    test.to_parquet(str(out_test), compression='gzip')
 
     flag.touch()
 
@@ -28,6 +27,7 @@ def make_datasets(in_csv, out_dir):
 
     init_data = pd.read_csv(in_csv, index_col= 0)
 
+    #TODO: add features and target parameter
     selected_data = init_data[['country', 'description', 'points', 'price', 
         'province', 'title', 'variety','winery']]
 
@@ -49,6 +49,8 @@ def make_datasets(in_csv, out_dir):
 
     data = deduped_data.dropna()
 
+    data = data.assign(description_length = data['description'].apply(len))
+
     X = data[num_features]
     y = data[labels]
 
@@ -56,8 +58,8 @@ def make_datasets(in_csv, out_dir):
         X, y, test_size=0.1, random_state=101
     )
 
-    train = hstack([X_train, y_train])
-    test = hstack([X_test, y_test])
+    train = X_train.join(y_train)
+    test = X_test.join(y_test)
 
     _save_datasets(train, test, out_dir)
 
