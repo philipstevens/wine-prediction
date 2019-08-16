@@ -1,9 +1,11 @@
 import click
 import logging
 import pickle
+import pweave
 import pandas as pd
 import sklearn.metrics as metrics
 from pathlib import Path
+
 
 @click.command()
 @click.option('--model')
@@ -16,7 +18,7 @@ def evaluate_model(model, in_data, out_dir, name):
 
     log.info('Evaluating model.')
 
-    out_path = Path(out_dir) / f'{name}.pdf'
+    out_path = Path(out_dir) / f'{name}.html'
 
     data = pd.read_parquet(in_data)
 
@@ -29,14 +31,17 @@ def evaluate_model(model, in_data, out_dir, name):
 
     predictions = loaded_model.predict(X)
 
-    log.info("Results of random regressor on price and description length only:" )
-    log.info("explained_variance_score: ", metrics.explained_variance_score(y, predictions)) #Explained variance regression score function
-    log.info("mean absolute error: ", metrics.mean_absolute_error(y, predictions)) #Mean absolute error regression loss
-    log.info("mean squared error: ", metrics.mean_squared_error(y, predictions)) #Mean squared error regression loss
-    log.info("mean squared log error: ", metrics.mean_squared_log_error(y, predictions)) #Mean squared logarithmic error regression loss
-    log.info("median absolute error: ", metrics.median_absolute_error(y, predictions)) #Median absolute error regression loss
-    log.info("R2 score: ", metrics.r2_score(y, predictions)) #R^2 (coefficient of determination) regression score function.
+    preds = pd.DataFrame(predictions, columns=['predictions'])
+    labels = pd.DataFrame(y, columns=['labels'])
 
+
+    pred_path = Path(out_dir) / 'predictions.parquet.gzip'
+    labels_path = Path(out_dir) / 'labels.parquet.gzip'
+
+    preds.to_parquet(str(pred_path), compression='gzip')
+    labels.to_parquet(str(labels_path), compression='gzip')
+
+    pweave.weave('report.pmd', doctype = "md2html", output = out_path)
 
     log.info('Success! Report saved to {out_path}')
 

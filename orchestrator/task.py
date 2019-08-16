@@ -138,5 +138,5 @@ class EvaluateModel(DockerTask):
         out_dir.mkdir(parents=True, exist_ok=True)
 
         return luigi.LocalTarget(
-            path=str(out_dir/f'{self.report_name}.pdf')
+            path=str(out_dir/f'{self.report_name}.html')
         )

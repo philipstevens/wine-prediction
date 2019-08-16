@@ -1,0 +1,95 @@
+% Evaluation of Wine Point Predicting Model
+% Philip Charles Stevens
+% 15th Aug 2019
+
+# Introduction
+
+This an example of a script that can be published using
+[Pweave](http://mpastell.com/pweave). The script can be executed
+normally using Python or published to HTML with Pweave
+Text is written in markdown in lines starting with "`#'` " and code
+is executed and results are included in the published document.
+The concept is similar to
+publishing documents with [MATLAB](http://mathworks.com) or using
+stitch with [Knitr](http://http://yihui.name/knitr/demo/stitch/).
+
+Notice that you don't need to define chunk options (see
+[Pweave docs](http://mpastell.com/pweave/usage.html#code-chunk-options)
+),
+but you do need one line of whitespace between text and code.
+If you want to define options you can do it on using a line starting with
+`#+`. just before code e.g. `#+ term=True, caption='Fancy plots.'`.
+If you're viewing the HTML version have a look at the
+[source](FIR_design.py) to see the markup.
+
+The code and text below comes mostly
+from my blog post [FIR design with SciPy](http://mpastell.com/2010/01/18/fir-with-scipy/),
+but I've updated it to reflect new features in SciPy.
+
+# FIR Filter Design
+
+We'll implement lowpass, highpass and ' bandpass FIR filters. If
+you want to read more about DSP I highly recommend [The Scientist
+and Engineer's Guide to Digital Signal
+Processing](http://www.dspguide.com/) which is freely available
+online.
+
+## Functions for frequency, phase, impulse and step response
+
+Let's first define functions to plot filter
+properties.
+
+
+```python
+import pandas as pd
+import sklearn.metrics as metrics
+
+predictions = pd.read_parquet('/usr/share/data/evaluation/predictions.parquet.gzip')
+y = pd.read_parquet('/usr/share/data/evaluation/labels.parquet.gzip')
+
+
+print("Results of random regressor on price and description length only:" )
+print("explained_variance_score: ", metrics.explained_variance_score(y, predictions)) 
+print("mean absolute error: ", metrics.mean_absolute_error(y, predictions)) 
+print("mean squared error: ", metrics.mean_squared_error(y, predictions)) 
+print("mean squared log error: ", metrics.mean_squared_log_error(y, predictions))
+print("median absolute error: ", metrics.median_absolute_error(y, predictions)) 
+print("R2 score: ", metrics.r2_score(y, predictions)) 
+```
+
+## Lowpass FIR filter
+
+Designing a lowpass FIR filter is very simple to do with SciPy, all you
+need to do is to define the window length, cut off frequency and the
+window.
+
+The Hamming window is defined as:
+$w(n) = \alpha - \beta\cos\frac{2\pi n}{N-1}$, where $\alpha=0.54$ and $\beta=0.46$
+
+The next code chunk is executed in term mode, see the [Python script](FIR_design.py) for syntax.
+Notice also that Pweave can now catch multiple figures/code chunk.
+
+
+```python, term=True
+print("asdf")
+```
+
+## Highpass FIR Filter
+
+Let's define a highpass FIR filter, if you compare to original blog
+post you'll notice that it has become easier since 2009. You don't
+need to do ' spectral inversion "manually" anymore!
+
+
+```python
+print("asdf")
+```
+
+## Bandpass FIR filter
+
+Notice that the plot has a caption defined in code chunk options.
+
+
+```python, caption="Bandpass FIR filter."
+print("asdf")
+```
