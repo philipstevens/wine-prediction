@@ -1,9 +1,10 @@
 import click
 import logging
 import pickle
-import pandas as pd 
+import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from pathlib import Path
+
 
 @click.command()
 @click.option('--in-data')
@@ -21,8 +22,8 @@ def train_model(in_data, out_dir, name):
 
     train = data[data.istest == False].drop('istest', axis=1)
 
-    X = train.iloc[:,:-1]
-    y = train.iloc[:,-1]
+    X = train.iloc[:, :-1]
+    y = train.iloc[:, -1]
 
     model = RandomForestRegressor()
     model.fit(X, y)

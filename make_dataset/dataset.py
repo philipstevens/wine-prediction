@@ -1,10 +1,11 @@
 import click
 import dask.dataframe as dd
 import numpy as np
-import pandas as pd 
+import pandas as pd
 from distributed import Client
 from pathlib import Path
 from sklearn.model_selection import train_test_split
+
 
 def _save_datasets(dataset, outdir: Path):
     """Save data set into nice directory structure and write SUCCESS flag."""
@@ -24,11 +25,11 @@ def make_datasets(in_csv, out_dir):
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    init_data = pd.read_csv(in_csv, index_col= 0)
+    init_data = pd.read_csv(in_csv, index_col=0)
 
-    #TODO: add features and target parameter
-    selected_data = init_data[['country', 'description', 'points', 'price', 
-        'province', 'title', 'variety','winery']]
+    # TODO: add features and target parameter
+    selected_data = init_data[['country', 'description', 'points', 'price',
+                               'province', 'title', 'variety', 'winery']]
 
     cat_features = [
         'country',
@@ -48,7 +49,7 @@ def make_datasets(in_csv, out_dir):
 
     data = deduped_data.dropna()
 
-    data = data.assign(description_length = data['description'].apply(len))
+    data = data.assign(description_length=data['description'].apply(len))
 
     X = data[num_features]
     y = data[labels]

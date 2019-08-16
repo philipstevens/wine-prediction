@@ -24,14 +24,14 @@ def evaluate_model(model, in_data, out_dir, name):
 
     test = data[data.istest == True].drop('istest', axis=1)
 
-    X = test.iloc[:,:-1]
-    y = test.iloc[:,-1]
+    X = test.iloc[:, :-1]
+    y = test.iloc[:, -1]
 
     loaded_model = pickle.load(open(model, 'rb'))
 
     predictions = loaded_model.predict(X)
 
-    frame = {'labels' : y, 'predictions' : predictions}
+    frame = {'labels': y, 'predictions': predictions}
 
     preds = pd.DataFrame(frame)
 
@@ -39,7 +39,7 @@ def evaluate_model(model, in_data, out_dir, name):
 
     preds.to_parquet(str(preds_path), compression='gzip')
 
-    pweave.weave('report.pmd', doctype = "md2html", output = out_path)
+    pweave.weave('report.pmd', doctype="md2html", output=out_path)
 
     log.info('Success! Report saved to {out_path}')
 

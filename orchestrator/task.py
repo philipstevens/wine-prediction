@@ -79,6 +79,7 @@ class MakeDatasets(DockerTask):
             path=str(Path(self.out_dir) / 'data.parquet.gzip')
         )
 
+
 class TrainModel(DockerTask):
 
     model_name = luigi.Parameter(default='model')
@@ -108,6 +109,7 @@ class TrainModel(DockerTask):
             path=str(out_dir/f'{self.model_name}.pickle')
         )
 
+
 class EvaluateModel(DockerTask):
 
     report_name = luigi.Parameter(default='report')
@@ -119,8 +121,8 @@ class EvaluateModel(DockerTask):
 
     def requires(self):
         return {
-            'data' : MakeDatasets(),
-            'model' : TrainModel()
+            'data': MakeDatasets(),
+            'model': TrainModel()
         }
 
     @property
