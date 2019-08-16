@@ -31,15 +31,13 @@ def evaluate_model(model, in_data, out_dir, name):
 
     predictions = loaded_model.predict(X)
 
-    preds = pd.DataFrame(predictions, columns=['predictions'])
-    labels = pd.DataFrame(y, columns=['labels'])
+    frame = {'labels' : y, 'predictions' : predictions}
 
+    preds = pd.DataFrame(frame)
 
-    pred_path = Path(out_dir) / 'predictions.parquet.gzip'
-    labels_path = Path(out_dir) / 'labels.parquet.gzip'
+    preds_path = Path(out_dir) / 'predictions.parquet.gzip'
 
-    preds.to_parquet(str(pred_path), compression='gzip')
-    labels.to_parquet(str(labels_path), compression='gzip')
+    preds.to_parquet(str(preds_path), compression='gzip')
 
     pweave.weave('report.pmd', doctype = "md2html", output = out_path)
 
