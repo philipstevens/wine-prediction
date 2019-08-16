@@ -1,7 +1,7 @@
-FROM python:3.6-alpine
+FROM drtools/dask:latest
 
-COPY . /opt/train_data/
+COPY . /opt/train_model/
 
 USER root
 
-WORKDIR /opt/train_data/
+WORKDIR /opt/train_model/

@@ -6,14 +6,13 @@ from distributed import Client
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 
-def _save_datasets(train, test, outdir: Path):
-    """Save data sets into nice directory structure and write SUCCESS flag."""
-    out_train = outdir / 'train.parquet.gzip/'
-    out_test = outdir / 'test.parquet.gzip/'
+def _save_datasets(dataset, outdir: Path):
+    """Save data set into nice directory structure and write SUCCESS flag."""
+    out_dataset = outdir / 'data.parquet.gzip/'
+
     flag = outdir / '.SUCCESS'
 
-    train.to_parquet(str(out_train), compression='gzip')
-    test.to_parquet(str(out_test), compression='gzip')
+    dataset.to_parquet(str(out_dataset), compression='gzip')
 
     flag.touch()
 
@@ -61,7 +60,12 @@ def make_datasets(in_csv, out_dir):
     train = X_train.join(y_train)
     test = X_test.join(y_test)
 
-    _save_datasets(train, test, out_dir)
+    train['istest'] = np.array(False * len(train), dtype='bool')
+    test['istest'] = np.array(True * len(test), dtype='bool')
+
+    final_dataset = train.append(test)
+
+    _save_datasets(final_dataset, out_dir)
 
 
 if __name__ == '__main__':

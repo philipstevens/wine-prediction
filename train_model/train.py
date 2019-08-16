@@ -1,34 +1,38 @@
-import pandas as pd 
+import click
+import logging
 import pickle
+import pandas as pd 
 from sklearn.ensemble import RandomForestRegressor
-
-def _save_model(model, outdir: Path):
-    """Save model into output directory and write SUCCESS flag."""
-    out_model = outdir / 'model.save'
-    flag = outdir / '.SUCCESS'
-
-    pickle.dump(model, open(out_model, 'wb'))
-
-    flag.touch()
+from pathlib import Path
 
 @click.command()
 @click.option('--in-data')
 @click.option('--out-dir')
-def train_model(in_data, out_dir):
-    out_dir = Path(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
+@click.option('--name')
+def train_model(in_data, out_dir, name):
 
-    train = pd.read_parquet(in_data)
+    log = logging.getLogger('train-model')
 
-	X = train.iloc[:,:-1]
+    log.info('Training model.')
 
-	y = train.iloc[:,-1]
+    out_path = Path(out_dir) / f'{name}.pickle'
 
-	model = RandomForestRegressor()
-	model.fit(X, y)
+    data = pd.read_parquet(in_data)
 
-	_save_model(model, out_dir)
+    train = data[data.istest == False].drop('istest', axis=1)
 
+    X = train.iloc[:,:-1]
+    y = train.iloc[:,-1]
+
+    model = RandomForestRegressor()
+    model.fit(X, y)
+
+    pickle.dump(model, open(out_path, 'wb'))
+
+    log.info('Success! Model saved to {out_path}')
+
+    flag = Path(out_dir) / '.SUCCESS'
+    flag.touch()
 
 
 if __name__ == '__main__':

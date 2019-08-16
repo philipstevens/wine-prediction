@@ -76,11 +76,12 @@ class MakeDatasets(DockerTask):
 
     def output(self):
         return luigi.LocalTarget(
-            path=str(Path(self.out_dir) / '.SUCCESS')
+            path=str(Path(self.out_dir) / 'data.parquet.gzip')
         )
 
 class TrainModel(DockerTask):
 
+    model_name = luigi.Parameter(default='model')
     out_dir = luigi.Parameter(default='/usr/share/data/model/')
 
     @property
@@ -93,12 +94,49 @@ class TrainModel(DockerTask):
     @property
     def command(self):
         return [
-            'python', 'dataset.py',
+            'python', 'train.py',
             '--in-data', self.input().path,
             '--out-dir', self.out_dir,
+            '--name', self.model_name,
         ]
 
     def output(self):
+        out_dir = Path(self.out_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+
         return luigi.LocalTarget(
-            path=str(Path(self.out_dir) / '.SUCCESS')
+            path=str(out_dir/f'{self.model_name}.pickle')
+        )
+
+class EvaluateModel(DockerTask):
+
+    report_name = luigi.Parameter(default='report')
+    out_dir = luigi.Parameter(default='/usr/share/data/evaluation/')
+
+    @property
+    def image(self):
+        return f'code-challenge/evaluate-model:{VERSION}'
+
+    def requires(self):
+        return {
+            'data' : MakeDatasets(),
+            'model' : TrainModel()
+        }
+
+    @property
+    def command(self):
+        return [
+            'python', 'evaluate.py',
+            '--model', self.input()['model'].path,
+            '--in-data', self.input()['data'].path,
+            '--out-dir', self.out_dir,
+            '--name', self.report_name,
+        ]
+
+    def output(self):
+        out_dir = Path(self.out_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        return luigi.LocalTarget(
+            path=str(out_dir/f'{self.report_name}.pdf')
         )
