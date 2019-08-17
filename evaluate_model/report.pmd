@@ -5,20 +5,20 @@
 The following are measures of quality of our predictive model.
 
 ```python echo=False
+import numpy as np
 import pandas as pd
 import sklearn.metrics as metrics
 
 data = pd.read_parquet('/usr/share/data/evaluation/predictions.parquet.gzip')
 
 predictions = data['predictions']
-y = data['labels']
+y = data['points']
 
-print("Explained variance score: ", metrics.explained_variance_score(y, predictions)) 
-print("Mean absolute error: ", metrics.mean_absolute_error(y, predictions)) 
-print("Mean squared error: ", metrics.mean_squared_error(y, predictions)) 
-print("Mean squared log error: ", metrics.mean_squared_log_error(y, predictions))
-print("Median absolute error: ", metrics.median_absolute_error(y, predictions)) 
+print("mean absolute error:", metrics.mean_absolute_error(y, predictions))
+print("median absolute error:", metrics.median_absolute_error(y, predictions)) 
+print("root mean squared error:", np.sqrt(metrics.mean_squared_error(y, predictions))) 
 print("R2 score: ", metrics.r2_score(y, predictions)) 
+
 ```
 
 

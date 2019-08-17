@@ -219,7 +219,8 @@ class DockerClient(ContainerClient):
             filters={'label': f'luigi_task_id={task_id}'},
             all=True,
         )
-        containers = sorted(containers, key=lambda x: x.labels['luigi_retries'])
+        containers = sorted(
+            containers, key=lambda x: x.labels['luigi_retries'])
         return containers
 
     def get_retry_count(self, task_id):
