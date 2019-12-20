@@ -1,5 +1,11 @@
 # Wine Point Prediction
 
+Docker application that trains and evaluates a model that predicts wine quality from general descriptions. 
+
+Original dataset: https://www.kaggle.com/zynicide/wine-reviews.
+
+Intended as a template for training applications.
+
 To build images execute with version set:
 
 `./build-task-images.sh VERSION`
